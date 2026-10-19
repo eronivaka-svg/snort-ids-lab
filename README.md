@@ -1,83 +1,42 @@
-# Snort Intrusion Detection: Rule Setup and Validation
+# Snort: Configuration and Rule Validation Exercise
 
-**Focus:** IDS · Linux · Snort 2.9 · signature rules · troubleshooting  
-**Course context:** CSCI 412 (Information Security), John Jay College of Criminal Justice  
-**Status:** **Rule syntax/configuration validation succeeded; alert generation was *not* confirmed.**
+An introductory Snort configuration exercise from **CSCI 412: Information Security**, John Jay College of Criminal Justice.
 
-## Goal
-Install and configure a network intrusion detection system (Snort), load a simple custom content-matching signature, verify that Snort accepts the rule, and investigate why a live alert may not appear.
+## Objective
 
-## Lab setup
+Install Snort in a Linux virtual machine, configure its rule-loading environment, and check whether Snort accepts a basic test rule.
+
+## Setup
 
 ```mermaid
 flowchart LR
-    G["Benign HTTP test client"] -->|"Test traffic"| V["Ubuntu Virtual Machine\nInterface enp0s3\nHOME_NET 10.0.2.0/24"]
-    V --> S["Snort 2.9.20\nexperimental.rules"]
-    S -. "Expected alerts; not yet observed" .-> A["Console / alert output"]
+    VM["Ubuntu VM<br/>enp0s3"] --> SN["Snort 2.9<br/>rule validation"]
+    SN --> R["Syntax/configuration check"]
 ```
 
-This is a **logical demonstration**, not a claim that an alert was produced or that the shown topology was all separately verified.
+## What I tested
 
-## Tools and files
-- Ubuntu/Linux, terminal, Snort **2.9.20**
-- Snort configuration and custom rule file `/etc/snort/rules/experimental.rules`
-- Network interface `enp0s3`
-- `curl` for a benign HTTP test attempt
-- Custom rule text reproduced below from coursework notes; a separate `.rules` file is pending upload
-- [`scripts/validate-lab.sh`](scripts/validate-lab.sh): optional *new* validation helper
+- Worked with Snort 2.9 and a custom rule file in the lab environment.
+- Adjusted the configured `HOME_NET` value for the virtual network.
+- Ran a Snort validation check; the recorded terminal output indicated successful initialization and one rule loaded.
+- Attempted HTTP test traffic and checked for resulting alerts.
 
-## Work performed
-1. Set `HOME_NET` to `10.0.2.0/24` in the lab configuration.
-2. Added a custom Snort content-matching TCP rule to `experimental.rules`.
-3. Invoked Snort's validation mode using `snort -T`.
-4. Observed successful initialization and **one loaded detection rule**.
-5. Attempted a benign HTTP request to trigger the content match.
-6. Checked the output: the `alert` file was absent and `snort.log` was zero bytes in the observed run.
+**Outcome:** I verified rule loading, but I did **not** observe a matching intrusion alert. This repository therefore demonstrates configuration work and troubleshooting—not working end-to-end intrusion detection.
 
-## The original rule
+## About the test rule
 
-```snort
-alert tcp any any -> any any (content:"the"; msg:"The found ...."; sid:1000001; rev:1;)
-```
+The classroom exercise used a broad TCP content match on the word `the`. Such a match is **not a meaningful attack signature**: it can match ordinary benign traffic and has no useful specificity. I would not use it to identify malicious activity.
 
-This is the rule content transcribed from the notes. It is broad and suitable only for a simple course exercise, **not a production-quality signature**.
+The exact lab rule and test commands should be revisited in a controlled environment before publishing a working signature or making detection claims.
 
-## Verified results vs. unresolved work
+## Next steps
 
-| Step | Observed status |
-| --- | --- |
-| Snort version identified | 2.9.20 |
-| Rule file present | Yes, `/etc/snort/rules/experimental.rules` |
-| Validation test `snort -T` | Successful — initialization complete, 1 rule loaded |
-| HTTP test with `curl` | Command attempted |
-| Intrusion alert screenshot / alert log | **Not captured / not observed** |
-| Working end-to-end detection | **Not yet demonstrated** |
+1. Inspect the complete `snort.conf` and verify that the rules file is included.
+2. Confirm the capture interface sees the test traffic.
+3. Run Snort in an appropriate IDS alert mode and generate predictable test traffic on the monitored network.
+4. Save genuine validation and alert output, then replace the trivial content match with a narrowly scoped, documented rule.
+5. Explain expected false positives and validate the result across multiple test cases.
 
-### Actual commands documented in the coursework
+## Current evidence
 
-```bash
-sudo snort -T -i enp0s3 -c /etc/snort/rules/experimental.rules
-sudo snort -v -i enp0s3 -c /etc/snort/rules/experimental.rules -l /var/log/snort/
-curl --max-time 15 http://example.com/the
-```
-
-The `-v` flag invokes verbose packet display and **is not the same as proof that alert output was configured**. The validation success alone does not establish that the live rule matched traffic.
-
-## Evidence status
-The original Snort terminal screenshots from the pinned chat were not available as exportable source files when this repository was prepared. No fabricated alert output is included. See [`evidence/README.md`](evidence/README.md) for exactly what should be captured in a repeat of the lab.
-
-## Next verification steps (not represented as completed)
-1. Confirm the custom rule is loaded through the actual Snort configuration being used for detection.
-2. Start Snort in IDS alert mode, e.g. with `-A console`, on the correct interface in the isolated lab.
-3. Send predictable benign payload containing `the` across the monitored interface; **localhost-to-localhost traffic may not traverse `enp0s3`**.
-4. Record the console alert, logged rule SID, matching packet fields and time, and save an authentic screenshot.
-5. Narrow the signature to a particular service/direction and evaluate false positives.
-
-## What I'd improve
-- Complete an end-to-end alert proof and include screenshots of a matched SID.
-- Reduce noise by specifying the trusted subnet, destination port, and content inspection context.
-- Explain the Snort 2.9 rule-loading path and test `-c` vs. rule include configuration.
-- Document test packets and network-interface selection reproducibly.
-
-## Provenance
-The original Snort rule, configuration details, successful validation, and lack of observed alerts are from completed coursework steps. Scripts supplied here are **new portfolio helpers** and must not be described as work performed in the original lab. This is an introductory lab, not a deployed production IDS.
+Only the classroom troubleshooting and rule-validation notes are available here. No alert screenshot, alert log, or packet capture is published. This repo is a record of an early configuration exercise, **not a completed IDS deployment**.
