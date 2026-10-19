@@ -23,7 +23,7 @@ This is a **logical demonstration**, not a claim that an alert was produced or t
 - Snort configuration and custom rule file `/etc/snort/rules/experimental.rules`
 - Network interface `enp0s3`
 - `curl` for a benign HTTP test attempt
-- [`rules/experimental.rules`](rules/experimental.rules): custom rule text restored from coursework notes
+- Custom rule text reproduced below from coursework notes; a separate `.rules` file is pending upload
 - [`scripts/validate-lab.sh`](scripts/validate-lab.sh): optional *new* validation helper
 
 ## Work performed
